@@ -1,0 +1,7 @@
+[project]
+name = "gatesmith"
+version = "0.1.0"
+description = "CLI tool that converts dataflow Verilog into optimized gate-level Verilog"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
