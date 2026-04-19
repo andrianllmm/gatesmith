@@ -6,9 +6,15 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = []
 
+[project.scripts]
+gatesmith = "gatesmith.cli:app"
+
 [dependency-groups]
 dev = [
     "pytest>=9.0.3",
     "ruff>=0.15.11",
     "ty>=0.0.31",
 ]
+
+[tool.uv]
+package = true
