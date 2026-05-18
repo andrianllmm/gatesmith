@@ -1,5 +1,4 @@
-"""Simple recursive-descent parser for a restricted Verilog `assign`.
-"""
+"""Simple recursive-descent parser for a restricted Verilog `assign`."""
 
 from __future__ import annotations
 
