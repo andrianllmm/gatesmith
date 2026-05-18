@@ -1,0 +1,16 @@
+{
+  "editor.formatOnSave": true,
+  "cSpell.words": [
+    "gatesmith",
+    "implicant",
+    "implicants",
+    "minterm",
+    "minterms",
+    "maxterm",
+    "maxterms",
+    "Quine-McCluskey",
+    "QMC",
+    "verilog",
+    "netlist"
+  ]
+}
