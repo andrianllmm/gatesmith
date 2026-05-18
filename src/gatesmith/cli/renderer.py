@@ -78,15 +78,21 @@ def render_minterms(minterms: list[int], variables: list[str]) -> None:
 
 def render_qmc_rounds(rounds, variables: list[str]) -> None:
     console.rule("Quine-McCluskey Rounds")
-    for round_idx, patterns in enumerate(rounds):
+    for round_idx, qround in enumerate(rounds):
+        # `qround` is a QMCRound NamedTuple with an `implicants` field
+        patterns = getattr(qround, "implicants", qround)
         t = Table(title=f"Round {round_idx}")
         t.add_column("Group", justify="right")
         t.add_column("Minterms")
         for v in variables:
             t.add_column(v)
-        # patterns: tuple of (pattern, covers)
-        sorted_patterns = sorted(patterns, key=lambda pc: pc[0].count("1"))
-        for pattern, covers in sorted_patterns:
+        # `patterns` is an iterable of ImplicantSnapshot(pattern, covers)
+        sorted_patterns = sorted(
+            patterns, key=lambda pc: (pc.pattern.count("1") if pc.pattern else 0)
+        )
+        for snapshot in sorted_patterns:
+            pattern = snapshot.pattern
+            covers = snapshot.covers
             group = pattern.count("1") if pattern else 0
             bits = [ch for ch in pattern] if pattern else []
             t.add_row(str(group), ",".join(str(x) for x in covers), *bits)
