@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import typer
-from gatesmith.cli import renderer
+from pathlib import Path
 
+from gatesmith.cli import renderer
 from gatesmith.core.parser import ParseError
 from gatesmith.core.pipeline import synthesize as run_pipeline
 from gatesmith.io.reader import read_input
@@ -16,7 +17,7 @@ def synthesize(
     input: str = typer.Argument(
         ..., help="Single Verilog assign statement or a file path"
     ),
-    output: str = typer.Option("out.v", help="Destination Verilog file"),
+    output: str | None = typer.Option(None, help="Destination Verilog file"),
     verbose: bool = typer.Option(False, help="Print synthesis diagnostics"),
 ) -> None:
     try:
@@ -25,9 +26,17 @@ def synthesize(
     except (ParseError, ValueError) as exc:
         renderer.render_error(str(exc))
         raise typer.Exit(code=1) from exc
-    except Exception as exc:
+    except Exception:
         renderer.render_error("Unexpected synthesis failure")
-        raise typer.Exit(code=1) from exc
+        raise typer.Exit(code=1)
+
+    if output is None:
+        input_path = Path(input)
+
+        if input_path.suffix == ".v":
+            output = str(input_path.with_name(input_path.stem + "_out.v"))
+        else:
+            output = "out.v"
 
     if verbose:
         vars_ = result.variables
