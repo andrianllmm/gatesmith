@@ -20,6 +20,7 @@ def synthesize(
     output: str | None = typer.Option(None, help="Destination Verilog file"),
     verbose: bool = typer.Option(False, help="Print synthesis diagnostics"),
 ) -> None:
+    # Read input file
     try:
         source = read_input(input)
         result = run_pipeline(source)
@@ -30,6 +31,7 @@ def synthesize(
         renderer.render_error("Unexpected synthesis failure")
         raise typer.Exit(code=1)
 
+    # Determine output file name
     if output is None:
         input_path = Path(input)
 
@@ -38,6 +40,7 @@ def synthesize(
         else:
             output = "out.v"
 
+    # Render verbose output
     if verbose:
         vars_ = result.variables
 
@@ -54,7 +57,9 @@ def synthesize(
         renderer.render_summary(result)
         renderer.render_verilog(result.verilog)
 
+    # Write output file
     write_output(output, result.verilog)
+
     typer.echo(output)
 
 

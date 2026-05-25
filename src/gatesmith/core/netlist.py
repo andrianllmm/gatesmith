@@ -94,10 +94,15 @@ def build_netlist(
         '0' a shared inverter is created and cached.
         """
 
+        # Use original wire if true form
         if bit == "1":
             return variable
+
+        # Check for don't-care
         if bit != "0":
             raise ValueError(f"Unsupported implicant bit: {bit!r}")
+
+        # Create a new wire and cache it if negated form
         if variable not in inversion_cache:
             output_wire = new_wire("n")
             inversion_cache[variable] = output_wire
@@ -111,6 +116,7 @@ def build_netlist(
             )
         return inversion_cache[variable]
 
+    # Case: No implicants
     # Constant 0 function (no implicants) -> drive with literal 0
     if not implicants:
         return Netlist(
@@ -122,22 +128,29 @@ def build_netlist(
             output_driver="1'b0",
         )
 
+    # Stores product terms
     product_wires: list[str] = []
     for implicant in implicants:
+        # Get literals
         literals: list[str] = []
         for variable, bit in zip(variables, implicant.pattern, strict=True):
+            # Skip don't-cares
             if bit == "-":
                 continue
+            # Create a new wire for each literal
             literals.append(literal_wire(variable, bit))
-        # empty literals => product term is constant 1
+
+        # Empty literals => product term is constant 1
         if not literals:
             product_wires.append("1'b1")
             continue
-        # single-literal term => use the literal directly
+
+        # Single-literal term => use the literal directly
         if len(literals) == 1:
             product_wires.append(literals[0])
             continue
-        # build an AND tree for multi-literal terms
+
+        # Build an AND tree for multi-literal terms
         current = literals[0]
         for literal in literals[1:]:
             combined = new_wire()
@@ -169,6 +182,7 @@ def build_netlist(
             current = combined
         output_driver = current
 
+    # Return the netlist
     return Netlist(
         module_name=module_name,
         input_ports=tuple(variables),
