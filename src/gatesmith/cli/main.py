@@ -6,6 +6,7 @@ from pathlib import Path
 from gatesmith.cli import renderer
 from gatesmith.core.parser import ParseError
 from gatesmith.core.pipeline import synthesize as run_pipeline
+from gatesmith.core.verifier import verify_synthesis_result
 from gatesmith.io.reader import read_input
 from gatesmith.io.writer import write_output
 
@@ -61,6 +62,15 @@ def synthesize(
                 )
         renderer.render_summary(result)
         renderer.render_verilog(result.verilog)
+
+    verified = verify_synthesis_result(result)
+
+    if verbose:
+        renderer.render_verification(verified)
+
+    if not verified:
+        renderer.render_error("Verification failed: AST and netlist mismatch")
+        raise typer.Exit(code=2)
 
     # Write output file
     write_output(output, result.verilog)

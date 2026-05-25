@@ -1,5 +1,5 @@
 from gatesmith.core.ast import And, Const, Not, Or, Var, Xor
-from gatesmith.core.evaluator import evaluate
+from gatesmith.core.evaluator import evaluate_ast
 
 
 def test_evaluate_mixed_ast() -> None:
@@ -33,4 +33,4 @@ def test_evaluate_mixed_ast() -> None:
     # (c | False) = False | False = False
     # XOR = False ^ False = False
 
-    assert evaluate(expr, assignment) is False
+    assert evaluate_ast(expr, assignment) is False

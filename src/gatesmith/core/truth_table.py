@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from itertools import product
 
 from gatesmith.core.ast import Expression
-from gatesmith.core.evaluator import evaluate
+from gatesmith.core.evaluator import evaluate_ast
 
 
 @dataclass(frozen=True)
@@ -37,7 +37,9 @@ def build_truth_table(expr: Expression, variables: list[str]) -> list[TruthTable
         }
         rows.append(
             TruthTableRow(
-                index=index, assignment=assignment, output=evaluate(expr, assignment)
+                index=index,
+                assignment=assignment,
+                output=evaluate_ast(expr, assignment),
             )
         )
     return rows

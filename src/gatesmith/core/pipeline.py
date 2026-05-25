@@ -13,7 +13,7 @@ from gatesmith.core.truth_table import (
     build_truth_table,
     minterms_from_truth_table,
 )
-from gatesmith.core.netlist import build_netlist
+from gatesmith.core.netlist import Netlist, build_netlist
 from gatesmith.core.implicants import implicants_to_sop
 from gatesmith.core.verilog import render_verilog
 
@@ -33,6 +33,7 @@ class SynthesisResult:
     trace: MinimizationTrace | None
     implicants: list[Implicant]
     sop: str
+    netlist: Netlist
     verilog: str
 
 
@@ -81,5 +82,6 @@ def synthesize(source: str, no_opt: bool = False) -> SynthesisResult:
         trace=trace,
         implicants=implicants,
         sop=sop,
+        netlist=netlist,
         verilog=verilog,
     )
