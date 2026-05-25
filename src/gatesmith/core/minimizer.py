@@ -18,7 +18,12 @@ from dataclasses import dataclass
 from collections import defaultdict
 from typing import NamedTuple
 
-from gatesmith.core.implicants import Implicant, bitcount, literal_count
+from gatesmith.core.implicants import (
+    Implicant,
+    minterms_to_implicants,
+    bitcount,
+    literal_count,
+)
 
 
 class ImplicantSnapshot(NamedTuple):
@@ -81,9 +86,7 @@ def minimize_with_trace(
         )
 
     # Initial implicants are direct binary representations of minterms
-    current_implicants = [
-        make_implicant(minterm, variable_count) for minterm in sorted(set(minterms))
-    ]
+    current_implicants = minterms_to_implicants(minterms, variable_count)
 
     # Stores implicants that can no longer be merged (final candidates before selection)
     prime_implicants: list[Implicant] = []
@@ -176,21 +179,6 @@ def minimize_with_trace(
     )
 
     return selected, trace
-
-
-def make_implicant(minterm: int, variable_count: int) -> Implicant:
-    """Convert a minterm index into its binary implicant form.
-
-    Example: minterm=3, vars=4 -> "0011"
-    """
-
-    pattern = "" if variable_count == 0 else format(minterm, f"0{variable_count}b")
-
-    return Implicant(
-        pattern=pattern,
-        covers=frozenset({minterm}),
-        literals=literal_count(pattern),
-    )
 
 
 def merge_implicants(left: str, right: str) -> str | None:

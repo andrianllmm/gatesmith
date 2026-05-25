@@ -20,6 +20,29 @@ class Implicant:
     literals: int
 
 
+def minterms_to_implicants(minterms: list[int], variable_count: int) -> list[Implicant]:
+    """Convert a list of minterms into a list of `Implicant` objects."""
+    return [
+        minterm_to_implicant(minterm, variable_count)
+        for minterm in sorted(set(minterms))
+    ]
+
+
+def minterm_to_implicant(minterm: int, variable_count: int) -> Implicant:
+    """Convert a minterm index into its binary implicant form.
+
+    Example: minterm=3, vars=4 -> "0011"
+    """
+
+    pattern = "" if variable_count == 0 else format(minterm, f"0{variable_count}b")
+
+    return Implicant(
+        pattern=pattern,
+        covers=frozenset({minterm}),
+        literals=literal_count(pattern),
+    )
+
+
 def bitcount(pattern: str) -> int:
     """Count the number of '1' bits in `pattern`.
 

@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from gatesmith.core.ast import Assignment, collect_variables
-from gatesmith.core.implicants import Implicant
+from gatesmith.core.implicants import Implicant, minterms_to_implicants
 from gatesmith.core.minimizer import MinimizationTrace, minimize_with_trace
 from gatesmith.core.parser import parse_assign
 from gatesmith.core.truth_table import (
@@ -30,13 +30,13 @@ class SynthesisResult:
     variables: list[str]
     truth_table: list[TruthTableRow]
     minterms: list[int]
-    trace: MinimizationTrace
+    trace: MinimizationTrace | None
     implicants: list[Implicant]
     sop: str
     verilog: str
 
 
-def synthesize(source: str) -> SynthesisResult:
+def synthesize(source: str, no_opt: bool = False) -> SynthesisResult:
     """Run the full synthesis pipeline for a single `assign` statement.
 
     Steps:
@@ -48,17 +48,29 @@ def synthesize(source: str) -> SynthesisResult:
     """
 
     assignment = parse_assign(source)
+
     variables = collect_variables(assignment.expr)
+
     truth_table = build_truth_table(assignment.expr, variables)
+
     minterms = minterms_from_truth_table(truth_table)
-    implicants, trace = minimize_with_trace(minterms, len(variables))
+
+    implicants: list[Implicant] = []
+    trace: MinimizationTrace | None = None
+    if no_opt:
+        implicants = minterms_to_implicants(minterms, len(variables))
+    else:
+        implicants, trace = minimize_with_trace(minterms, len(variables))
+
     sop = implicants_to_sop(implicants, variables)
+
     netlist = build_netlist(
         module_name=assignment.target,
         output_name=assignment.target,
         variables=variables,
         implicants=implicants,
     )
+
     verilog = render_verilog(netlist)
 
     return SynthesisResult(
