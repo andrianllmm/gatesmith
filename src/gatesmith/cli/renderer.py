@@ -88,7 +88,7 @@ def render_qmc_rounds(rounds, variables: list[str]) -> None:
             t.add_column(v)
         # `patterns` is an iterable of ImplicantSnapshot(pattern, covers)
         sorted_patterns = sorted(
-            patterns, key=lambda pc: (pc.pattern.count("1") if pc.pattern else 0)
+            patterns, key=lambda pc: pc.pattern.count("1") if pc.pattern else 0
         )
         for snapshot in sorted_patterns:
             pattern = snapshot.pattern
@@ -147,3 +147,12 @@ def render_verilog(verilog: str) -> None:
 
 def render_error(message: str) -> None:
     console.print(f"[bold red]Error:[/bold red] {message}", style="red")
+
+
+def render_verification(ok: bool) -> None:
+    console.rule("Verification")
+
+    if ok:
+        console.print("[bold green]PASS[/bold green] AST and netlist are equivalent")
+    else:
+        console.print("[bold red]FAIL[/bold red] AST and netlist mismatch detected")

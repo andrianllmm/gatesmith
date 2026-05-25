@@ -15,6 +15,10 @@ def render_verilog(netlist: Netlist) -> str:
     and a final `assign` to drive the module output.
     """
 
+    # Stores lines of code
+    lines: list[str] = []
+
+    # Header ports (input and output)
     header_ports = ", ".join(
         [
             *(f"input {name}" for name in netlist.input_ports),
@@ -22,16 +26,23 @@ def render_verilog(netlist: Netlist) -> str:
         ]
     )
 
-    lines = [f"module {netlist.module_name}({header_ports});"]
+    # Module declaration
+    lines.append(f"module {netlist.module_name}({header_ports});")
+
+    # Wire declarations
     if netlist.wire_names:
         lines.append(f"  wire {', '.join(netlist.wire_names)};")
 
+    # Gate instantiations
     for gate in netlist.gates:
         joined_inputs = ", ".join((gate.output, *gate.inputs))
         lines.append(f"  {gate.kind} {gate.name} ({joined_inputs});")
 
+    # Final assignment
     lines.append(f"  assign {netlist.output_port} = {netlist.output_driver};")
 
+    # Module footer
     lines.append("endmodule")
 
+    # Combine into a single string
     return "\n".join(lines) + "\n"
